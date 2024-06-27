@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 	// Uncomment this block to pass the first stage
@@ -48,24 +47,11 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
-		hexStr := hex.EncodeToString(buf[:size])
-		fmt.Printf("Hex data: %s\n", hexStr)
+		response := make([]byte, size)
 
-		//Convert the received data to binary
-		binaryData := make([]int, len(buf[:size])*8)
-		for i, b := range buf[:size] {
-			for j := 0; j < 8; j++ {
-				binaryData[i*8+j] = int((b >> (7 - j)) & 1)
-			}
-		}
-		//Set the QR bit to 1
-		binaryData[16] = 1
-
-		response := bitsToByte(binaryData)
-
-		//Convert the response to hex just for checking
-		responseInHex := hex.EncodeToString(response)
-		fmt.Println("Response in hex: ", responseInHex)
+		copy(response, buf[:size])
+		//binary.BigEndian.PutUint16(response[0:2], uint16(1234))
+		response[2] = flipIndicator(response[2]) // set qr bit to 1
 
 		//
 		_, err = udpConn.WriteToUDP(response, source)
@@ -73,4 +59,8 @@ func main() {
 			fmt.Println("Failed to send response:", err)
 		}
 	}
+}
+
+func flipIndicator(b byte) byte {
+	return b | 0b10000000
 }
