@@ -1,21 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"net"
 	// Uncomment this block to pass the first stage
 	// "net"
 )
 
-func bitsToByte(bits []int) []byte {
-	bytes := make([]byte, len(bits)/8)
-	for i := 0; i < len(bits); i += 8 {
-		for j := 0; j < 8; j++ {
-			bytes[i/8] |= byte(bits[i+j]) << (7 - j)
-		}
-	}
-	return bytes
-}
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -44,14 +37,13 @@ func main() {
 			break
 		}
 
-		receivedData := string(buf[:size])
-		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
+		var msg *DNSMessage
 
-		response := make([]byte, size)
+		binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, msg)
 
-		copy(response, buf[:size])
-		//binary.BigEndian.PutUint16(response[0:2], uint16(1234))
-		response[2] = flipIndicator(response[2]) // set qr bit to 1
+		fmt.Printf("msg: %v %v %v", msg.Header, len(msg.Question), len(msg.Answer))
+
+		response := msg.ToBytes()
 
 		//
 		_, err = udpConn.WriteToUDP(response, source)
