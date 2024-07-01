@@ -37,11 +37,15 @@ func main() {
 			break
 		}
 
-		var msg *DNSMessage
+		//var msg DNSMessage
+		//
+		//err = binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, &msg)
 
-		binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, msg)
+		var msg DNSMessage
+		err = binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, &msg)
+		fmt.Printf("read binary failed: %v\n", err)
 
-		fmt.Printf("msg: %v %v %v", msg.Header, len(msg.Question), len(msg.Answer))
+		fmt.Printf("msg: %v %v ", msg.Header, len(msg.Question))
 
 		response := msg.ToBytes()
 
