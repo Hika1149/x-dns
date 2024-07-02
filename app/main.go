@@ -4,17 +4,15 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/codecrafters-io/dns-server-starter-go/app/buffer"
+	"github.com/codecrafters-io/dns-server-starter-go/app/dns"
 	"net"
 	// Uncomment this block to pass the first stage
 	// "net"
 )
 
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Println("Logs from your program will appear here!")
 
-	// Uncomment this block to pass the first stage
-	//
 	udpAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:2053")
 	if err != nil {
 		fmt.Println("Failed to resolve UDP address:", err)
@@ -36,6 +34,15 @@ func main() {
 			fmt.Println("Error receiving data:", err)
 			break
 		}
+
+		reqBuffer := buffer.BytePacketBuffer{
+			Buffer: buf[:size],
+			Pos:    0,
+		}
+
+		var request = dns.NewDNSPacket()
+
+		err = request.FromBuffer(reqBuffer)
 
 		//var msg DNSMessage
 		//
