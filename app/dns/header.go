@@ -102,3 +102,60 @@ func (h *DNSHeader) Read(buffer buffer.BufferReader) error {
 	return nil
 
 }
+
+func (h *DNSHeader) Write(buffer *buffer.BytePacketBuffer) error {
+
+	if err := buffer.WriteU16(h.ID); err != nil {
+		return err
+	}
+
+	flagByte := uint16(0x0000)
+
+	// 1 bit
+	if h.Response {
+		flagByte |= 0x8000
+	}
+	//4 bit (15-12)
+	flagByte |= uint16(h.OpCode) << 11
+
+	//1bit
+	if h.AuthoritativeAnswer {
+		flagByte |= 0x0400
+	}
+
+	//1bit
+	if h.TruncatedMsg {
+		flagByte |= 0x0200
+	}
+
+	//1 bit
+	if h.RecursionDesired {
+		flagByte |= 0x0100
+	}
+
+	// 1bit
+	if h.RecursionAvailable {
+		flagByte |= 0x0080
+	}
+
+	// 3bits (7-5)
+	flagByte |= uint16(h.Z) << 4
+
+	// 4bits
+	flagByte |= uint16(h.ResCode)
+
+	if err := buffer.WriteU16(h.QuestionCount); err != nil {
+		return err
+	}
+	if err := buffer.WriteU16(h.AnswerCount); err != nil {
+		return err
+	}
+	if err := buffer.WriteU16(h.AuthorityCount); err != nil {
+		return err
+	}
+	if err := buffer.WriteU16(h.AdditionalCount); err != nil {
+		return err
+	}
+
+	return nil
+}

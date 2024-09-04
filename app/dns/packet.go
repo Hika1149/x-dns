@@ -22,3 +22,14 @@ func (p *DNSPacket) FromBuffer(buffer buffer.BytePacketBuffer) error {
 
 	return nil
 }
+
+func (p *DNSPacket) Write(buffer *buffer.BytePacketBuffer) error {
+
+	err := p.Header.Write(buffer)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

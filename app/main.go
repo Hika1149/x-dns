@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 	"github.com/codecrafters-io/dns-server-starter-go/app/buffer"
 	"github.com/codecrafters-io/dns-server-starter-go/app/dns"
@@ -44,20 +42,28 @@ func main() {
 
 		err = request.FromBuffer(reqBuffer)
 
-		//var msg DNSMessage
+		if err != nil {
+			fmt.Printf("FromBuffer failed: %v\n", err)
+			break
+		}
+
+		// response packet
+		packet := dns.NewDNSPacket()
+
+		packet.Header = request.Header
+		packet.Header.Response = true
+
+		resBuffer := buffer.NewBytePacketBuffer()
+
+		err = packet.Write(resBuffer)
+		if err != nil {
+			fmt.Println("Failed to write response:", err)
+			break
+		}
+		fmt.Println("debug: ", resBuffer.Buffer[:size], len(resBuffer.Buffer))
+
 		//
-		//err = binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, &msg)
-
-		var msg DNSMessage
-		err = binary.Read(bytes.NewReader(buf[:size]), binary.BigEndian, &msg)
-		fmt.Printf("read binary failed: %v\n", err)
-
-		fmt.Printf("msg: %v %v ", msg.Header, len(msg.Question))
-
-		response := msg.ToBytes()
-
-		//
-		_, err = udpConn.WriteToUDP(response, source)
+		_, err = udpConn.WriteToUDP(resBuffer.Buffer, source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}
