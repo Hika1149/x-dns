@@ -3,7 +3,8 @@ package dns
 import "github.com/codecrafters-io/dns-server-starter-go/app/buffer"
 
 type DNSPacket struct {
-	Header DNSHeader
+	Header    DNSHeader
+	Questions []DNSQuestion
 }
 
 func NewDNSPacket() *DNSPacket {

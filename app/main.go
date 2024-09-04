@@ -60,10 +60,10 @@ func main() {
 			fmt.Println("Failed to write response:", err)
 			break
 		}
-		fmt.Println("debug: ", resBuffer.Buffer[:size], len(resBuffer.Buffer))
+		fmt.Println("debug: ", resBuffer.Buffer[:size], len(resBuffer.Buffer), resBuffer.Pos)
 
 		//
-		_, err = udpConn.WriteToUDP(resBuffer.Buffer, source)
+		_, err = udpConn.WriteToUDP(resBuffer.Buffer[:resBuffer.Pos], source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}
