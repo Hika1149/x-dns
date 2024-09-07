@@ -12,3 +12,10 @@ https://www.rfc-editor.org/rfc/rfc1035#section-4.1.2
 
 ### Answer Section Format
 https://www.rfc-editor.org/rfc/rfc1035#section-3.2.1
+
+
+### Message Compression
+https://www.rfc-editor.org/rfc/rfc1035#section-4.1.4
+```
+A two-byte subfield is used to represent a pointer to another location in the message where the name can be found.
+```

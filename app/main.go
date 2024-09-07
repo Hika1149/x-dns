@@ -33,6 +33,8 @@ func main() {
 			break
 		}
 
+		fmt.Println("buf size: ", size)
+
 		reqBuffer := buffer.BytePacketBuffer{
 			Buffer: buf[:size],
 			Pos:    0,
@@ -66,20 +68,17 @@ func main() {
 			packet.Header.ResCode = 4
 		}
 
-		// set query domain
-		queryDomain := ""
-		if len(packet.Questions) > 0 {
-			queryDomain = packet.Questions[0].Name
+		// set each answer
+		for _, q := range packet.Questions {
+			packet.AddAnswer(&dns.Record{
+				Name:   q.Name,
+				Type:   1,
+				Class:  1,
+				TTL:    60,
+				Length: 4,
+				Data:   "8.8.8.8",
+			})
 		}
-
-		packet.AddAnswer(&dns.Record{
-			Name:   queryDomain,
-			Type:   1,
-			Class:  1,
-			TTL:    60,
-			Length: 4,
-			Data:   "8.8.8.8",
-		})
 
 		// write to response buffer
 		resBuffer := buffer.NewBytePacketBuffer()

@@ -3,6 +3,7 @@ package buffer
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 )
 
 type BufferWriter interface {
@@ -14,6 +15,8 @@ type BufferReader interface {
 	ReadU8() (uint8, error)
 	ReadU16() (uint16, error)
 	ReadU32() (uint32, error)
+	Position() uint16
+	SetPosition(pos uint16)
 }
 
 type BytePacketBuffer struct {
@@ -31,6 +34,10 @@ func NewBytePacketBuffer() *BytePacketBuffer {
 
 func (b *BytePacketBuffer) Position() uint16 {
 	return b.Pos
+}
+func (b *BytePacketBuffer) SetPosition(pos uint16) {
+	b.Pos = pos
+
 }
 
 func (b *BytePacketBuffer) Get(pos uint16) (uint8, error) {
@@ -105,7 +112,8 @@ func (b *BytePacketBuffer) WriteU32(val uint32) error {
 func (b *BytePacketBuffer) checkBounds(pos, length uint16) error {
 	bufSize := uint16(len(b.Buffer))
 	if pos >= bufSize || pos+length > bufSize {
-		return errors.New("out of bounds")
+
+		return errors.New(fmt.Sprintf("out of bounds pos=%v length=%v bufSize=%v", pos, length, bufSize))
 	}
 	return nil
 }

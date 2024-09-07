@@ -26,15 +26,18 @@ func (q *DNSQuestion) Read(buffer buffer.BufferReader) error {
 
 	q.Name, err = q.ReadeDomainName(buffer)
 	if err != nil {
+		fmt.Println("read domain name failed", err)
 		return err
 	}
 	q.QType, err = buffer.ReadU16()
 	if err != nil {
+		fmt.Println("read QType failed", err)
 		return err
 	}
 
 	q.QClass, err = buffer.ReadU16()
 	if err != nil {
+		fmt.Println("read QClass failed", err)
 		return err
 	}
 
@@ -72,7 +75,7 @@ func (q *DNSQuestion) ReadeDomainName(buffer buffer.BufferReader) (string, error
 	// <length><content>
 
 	res := ""
-
+	var posRestored uint16
 	for {
 		length, err := buffer.ReadU8()
 		if err != nil {
@@ -82,6 +85,29 @@ func (q *DNSQuestion) ReadeDomainName(buffer buffer.BufferReader) (string, error
 		if length == 0 {
 			break
 		}
+
+		// check if this is a pointer
+		//if (length & 0b11000000) == 1 {
+		isPointer := (length & 0xC0) == 0xC0
+
+		if isPointer {
+			// The pointer takes the form of a two octet sequence:
+			b, err := buffer.ReadU8()
+			if err != nil {
+				return "", err
+			}
+
+			offset := uint16(length & 0x3F)
+			offset = offset << 8
+			offset = offset | uint16(b)
+
+			posRestored = buffer.Position()
+			buffer.SetPosition(offset)
+			fmt.Printf("record detect pointer nextPos=%v offset=%v bufferPos=%v\n", posRestored, offset, buffer.Position())
+			continue
+
+		}
+
 		if res != "" {
 			res += "."
 		}
@@ -93,6 +119,9 @@ func (q *DNSQuestion) ReadeDomainName(buffer buffer.BufferReader) (string, error
 			}
 			res += string(c)
 		}
+	}
+	if posRestored != 0 {
+		buffer.SetPosition(posRestored)
 	}
 	return res, nil
 

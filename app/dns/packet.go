@@ -35,6 +35,7 @@ func (p *DNSPacket) FromBuffer(buffer buffer.BytePacketBuffer) error {
 		p.Questions[i] = &DNSQuestion{}
 		err = p.Questions[i].Read(&buffer)
 		if err != nil {
+			fmt.Printf("read question #%v failed: %v\n", i, err)
 			return err
 		}
 	}
