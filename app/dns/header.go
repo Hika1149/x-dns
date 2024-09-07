@@ -144,6 +144,10 @@ func (h *DNSHeader) Write(buffer *buffer.BytePacketBuffer) error {
 	// 4bits
 	flagByte |= uint16(h.ResCode)
 
+	if err := buffer.WriteU16(flagByte); err != nil {
+		return err
+	}
+
 	if err := buffer.WriteU16(h.QuestionCount); err != nil {
 		return err
 	}

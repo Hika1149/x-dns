@@ -50,7 +50,11 @@ func main() {
 		// response packet
 		packet := dns.NewDNSPacket()
 
+		// init from request
 		packet.Header = request.Header
+		packet.Questions = request.Questions
+
+		//
 		packet.Header.Response = true
 
 		resBuffer := buffer.NewBytePacketBuffer()
