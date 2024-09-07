@@ -56,6 +56,15 @@ func main() {
 
 		// set response header
 		packet.Header.Response = true
+		packet.Header.AuthoritativeAnswer = false
+		packet.Header.TruncatedMsg = false
+		packet.Header.RecursionAvailable = false
+		packet.Header.Z = 0
+		if request.Header.OpCode == 0 {
+			packet.Header.ResCode = 0
+		} else {
+			packet.Header.ResCode = 4
+		}
 
 		packet.AddAnswer(&dns.Record{
 			Name:   "codecrafters.io",

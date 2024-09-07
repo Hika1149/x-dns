@@ -8,3 +8,7 @@ https://github.com/EmilHernvall/dnsguide/blob/b52da3b32b27c81e5c6729ac14fe01fef8
 
 ### Question Section Format
 https://www.rfc-editor.org/rfc/rfc1035#section-4.1.2
+
+
+### Answer Section Format
+https://www.rfc-editor.org/rfc/rfc1035#section-3.2.1
