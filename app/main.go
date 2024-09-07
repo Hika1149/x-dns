@@ -54,17 +54,26 @@ func main() {
 		packet.Header = request.Header
 		packet.Questions = request.Questions
 
-		//
+		// set response header
 		packet.Header.Response = true
 
-		resBuffer := buffer.NewBytePacketBuffer()
+		packet.AddAnswer(&dns.Record{
+			Name:   "codecrafters.io",
+			Type:   1,
+			Class:  1,
+			TTL:    60,
+			Length: 4,
+			Data:   "8.8.8.8",
+		})
 
+		// write to response buffer
+		resBuffer := buffer.NewBytePacketBuffer()
 		err = packet.Write(resBuffer)
 		if err != nil {
 			fmt.Println("Failed to write response:", err)
 			break
 		}
-		fmt.Println("debug: ", resBuffer.Buffer[:size], len(resBuffer.Buffer), resBuffer.Pos)
+		fmt.Println("debug: ", resBuffer.Buffer[:resBuffer.Pos], resBuffer.Pos)
 
 		//
 		_, err = udpConn.WriteToUDP(resBuffer.Buffer[:resBuffer.Pos], source)

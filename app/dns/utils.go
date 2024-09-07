@@ -28,9 +28,12 @@ func encodeDomainName(domain string) []byte {
 
 		b := []byte(s)
 
+		//fmt.Println("label length", byte(l), "label", b)
 		res = append(res, byte(l))
 		res = append(res, b...)
 	}
+	// terminating zero length octet
+	res = append(res, 0x00)
 	return res
 
 }
