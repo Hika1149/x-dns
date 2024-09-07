@@ -66,8 +66,14 @@ func main() {
 			packet.Header.ResCode = 4
 		}
 
+		// set query domain
+		queryDomain := ""
+		if len(packet.Questions) > 0 {
+			queryDomain = packet.Questions[0].Name
+		}
+
 		packet.AddAnswer(&dns.Record{
-			Name:   "codecrafters.io",
+			Name:   queryDomain,
 			Type:   1,
 			Class:  1,
 			TTL:    60,
