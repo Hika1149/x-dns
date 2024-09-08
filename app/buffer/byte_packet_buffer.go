@@ -10,6 +10,7 @@ type BufferWriter interface {
 	WriteU8(val uint8) error
 	WriteU16(val uint16) error
 	WriteU32(val uint32) error
+	Byte() []byte
 }
 type BufferReader interface {
 	ReadU8() (uint8, error)
@@ -31,7 +32,10 @@ func NewBytePacketBuffer() *BytePacketBuffer {
 		Pos:    0,
 	}
 }
+func (b *BytePacketBuffer) ToByte() []byte {
+	return b.Buffer[:b.Pos]
 
+}
 func (b *BytePacketBuffer) Position() uint16 {
 	return b.Pos
 }
@@ -116,4 +120,9 @@ func (b *BytePacketBuffer) checkBounds(pos, length uint16) error {
 		return errors.New(fmt.Sprintf("out of bounds pos=%v length=%v bufSize=%v", pos, length, bufSize))
 	}
 	return nil
+}
+
+func (b *BytePacketBuffer) Byte() []byte {
+	return b.Buffer[:b.Pos]
+
 }

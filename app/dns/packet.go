@@ -27,8 +27,6 @@ func (p *DNSPacket) FromBuffer(buffer buffer.BytePacketBuffer) error {
 		return err
 	}
 
-	fmt.Println("Question Count", p.Header.QuestionCount)
-
 	p.Questions = make([]*DNSQuestion, p.Header.QuestionCount)
 
 	for i := 0; i < int(p.Header.QuestionCount); i++ {
@@ -38,6 +36,18 @@ func (p *DNSPacket) FromBuffer(buffer buffer.BytePacketBuffer) error {
 			fmt.Printf("read question #%v failed: %v\n", i, err)
 			return err
 		}
+	}
+
+	p.Answers = make([]*Record, p.Header.AnswerCount)
+	for i := 0; i < int(p.Header.AnswerCount); i++ {
+		p.Answers[i] = &Record{}
+		err = p.Answers[i].Read(&buffer)
+		if err != nil {
+			fmt.Printf("read answer #%v failed: %v\n", i, err)
+			return err
+
+		}
+
 	}
 
 	return nil
@@ -67,4 +77,28 @@ func (p *DNSPacket) Write(buffer *buffer.BytePacketBuffer) error {
 	}
 
 	return nil
+}
+
+func (p *DNSPacket) ToByte() ([]byte, error) {
+	buf := buffer.NewBytePacketBuffer()
+	err := p.Write(buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.ToByte(), nil
+
+}
+
+func (p *DNSPacket) FromByte(data []byte) *DNSPacket {
+	packetBuffer := buffer.BytePacketBuffer{
+		Buffer: data,
+		Pos:    0,
+	}
+	err := p.FromBuffer(packetBuffer)
+	if err != nil {
+		fmt.Println("Failed to parse request:", err)
+		return p
+	}
+	return p
+
 }
